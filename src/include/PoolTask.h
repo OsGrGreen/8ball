@@ -19,17 +19,17 @@ public:
     virtual bool has_stealable() { return false; }
 };
 
-///////// Work
+///////// SingleWork
 // 
 // 
 /////////
 
 template <typename T>
-class Work : public PoolTask {
+class SingleWork : public PoolTask {
 public:
     using O = decltype(std::declval<T&>()());
 
-    Work(T func, promise<O>&& p): m_func(std::move(func)), m_value(std::move(p))  {}
+    SingleWork(T func, promise<O>&& p): m_func(std::move(func)), m_value(std::move(p))  {}
     void run(ThreadWorker &worker) override;
 
 private:
@@ -38,18 +38,18 @@ private:
 };
 
 template <typename T>
-void Work<T>::run(ThreadWorker& worker) {
+void SingleWork<T>::run(ThreadWorker& worker) {
     m_value.set_value(std::invoke(m_func));
 }
 
-///////// Stealable Work
+///////// Dividable Work
 // 
 // 
 /////////
 template <typename I, typename O>
-class StealableWork : public PoolTask {
+class DividableWork : public PoolTask {
 public:
-    StealableWork(function<O(I)> func, promise<O> p): m_func(std::move(m_func)), m_value(std::move(p))  {}
+    DividableWork(function<O(I)> func, promise<O> p): m_func(std::move(m_func)), m_value(std::move(p))  {}
     void run(ThreadWorker &worker) override;
     bool has_stealable() override;
 
@@ -61,9 +61,9 @@ private:
 };
 
 template <typename I, typename O>
-void StealableWork<I, O>::run(ThreadWorker& worker) {
+void DividableWork<I, O>::run(ThreadWorker& worker) {
     vector<O> collected_values;
-    while (!(m_workqueue.is_empty())) {
+    while (!(m_workqueue.empty())) {
         I input = m_workqueue.pop();
         O output = std::invoke(m_func, input);
         collected_values.push_back(std::move(output));
@@ -72,6 +72,6 @@ void StealableWork<I, O>::run(ThreadWorker& worker) {
 }
 
 template <typename I, typename O>
-bool StealableWork<I, O>::has_stealable() {
-    return m_workqueue.is_empty();
+bool DividableWork<I, O>::has_stealable() {
+    return m_workqueue.empty();
 }

@@ -15,7 +15,8 @@ target_sources(eightball
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PoolTask.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/threadpool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ThreadPool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ThreadWorker.cpp
 )
 
 target_include_directories(eightball

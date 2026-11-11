@@ -6,4 +6,5 @@
 #include "PoolTask.h"
 #include "ThreadQueue.h"
 
-typedef ThreadQueue<std::unique_ptr<PoolTask>> WorkQueue;
+typedef std::unique_ptr<PoolTask> Work;
+typedef ThreadQueue<Work> WorkQueue;
